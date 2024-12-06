@@ -63,6 +63,8 @@ const G_CHORDS: Record<string, ChordShape[]> = {
     { frets: ["3", "1", "0", "3", "3", "3"], fingers: [2, 1, 0, 3, 3, 3] },
     { frets: ["3", "1", "3", "3", "3", "x"], fingers: [2, 1, 3, 3, 3, 0] },
     { frets: ["x", "x", "5", "3", "6", "3"], fingers: [0, 0, 3, 1, 4, 1] }, // different inversion
+    { frets: ["3", "5", "3", "3", "3", "3"], fingers: [1, 3, 1, 1, 1, 1] }, // barre style
+    { frets: ["3", "x", "3", "3", "3", "x"], fingers: [2, 0, 2, 2, 2, 0] }, // bossa nova style
   ],
   G9: [
     { frets: ["3", "0", "3", "2", "3", "0"], fingers: [2, 0, 3, 1, 4, 0] },
@@ -323,14 +325,14 @@ export function chordDistance(chordA: ChordShape, chordB: ChordShape): number {
       chordA.frets[i] === "x"
         ? -1
         : chordA.frets[i] === "0"
-        ? 0
-        : parseInt(chordA.frets[i] as string);
+          ? 0
+          : parseInt(chordA.frets[i] as string);
     const fB =
       chordB.frets[i] === "x"
         ? -1
         : chordB.frets[i] === "0"
-        ? 0
-        : parseInt(chordB.frets[i] as string);
+          ? 0
+          : parseInt(chordB.frets[i] as string);
     if (fA >= 0 && fB >= 0) {
       dist += Math.abs(fA - fB);
     } else {
