@@ -483,23 +483,33 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
 
   chordNotes = chordNotes.map(n => transposeNote(n, interval));
 
-  // Now chordNotes represent the actual notes of the requested chord in the requested root key.
-  // From here on, identifyChord and the enharmonic checks will yield the correct equivalents (e.g. Gm7 for Bb6).
+  // NEW LOGIC: If we have a bass note, let's specifically try to start from that bass note 
+  // and see if identifyChord gives us something interesting (like Gm7 for Bb/G).
 
-  // Proceed with the existing logic...
+  // We have chordNotes corresponding to the chosen chord from G_CHORDS, transposed to `root`.
+  // Now handle the bass note if there is one:
   if (bass) {
-    const bassSemi = noteToSemitone(bass);
-    const chordSemis = chordNotes.map(n => noteToSemitone(n) % 12);
-    const bassIndex = chordSemis.indexOf(bassSemi % 12);
+    const bassNormalized = normalizeNoteName(bass);
+    // If the bass note isn't already in chordNotes, add it:
+    const normalizedChordNotes = chordNotes.map(normalizeNoteName);
+    if (!normalizedChordNotes.includes(bassNormalized)) {
+      chordNotes.push(bassNormalized);
+    }
 
-    if (bassIndex >= 0) {
+    // Now reorder chordNotes so that the bass is at the front:
+    const bassSemi = noteToSemitone(bassNormalized);
+    const chordSemis = chordNotes.map(n => noteToSemitone(n) % 12);
+    const bassIndex = chordSemis.indexOf(bassSemi);
+    if (bassIndex >= 0 && bassIndex !== 0) {
       chordNotes = [...chordNotes.slice(bassIndex), ...chordNotes.slice(0, bassIndex)];
     }
   }
 
-  const foundNames = new Set<string>([mainResult.chordName]);
+  // Now chordNotes represent the actual notes played, including the bass note if it wasn't there.
+  // For Bb/G, chordNotes should now be [G, Bb, D, F] after this block.
 
-  console.log({foundNames})
+  // Continue with identifyChord and the enharmonic checks:
+  const foundNames = new Set<string>([mainResult.chordName]);
 
   for (const rotation of allRotations(chordNotes)) {
     const identified = identifyChord(rotation);
