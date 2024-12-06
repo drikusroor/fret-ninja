@@ -142,14 +142,14 @@ const App: React.FC = () => {
     <div className="container mx-auto p-4 font-sans">
       <h1 className="text-3xl font-bold mb-4 text-center">FretNinja</h1>
       <div className="mb-4">
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={chordName}
             onChange={(e) => setChordName(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Enter chord name (e.g., Gma for Gmaj7)"
-            className="flex-grow border border-gray-300 rounded p-2 mb-2"
+            className="flex-grow border border-gray-300 rounded p-2"
           />
           <button
             onClick={handleAddToSequence}

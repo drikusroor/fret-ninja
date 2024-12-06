@@ -13,7 +13,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers }) =>
   const invertedFingers = [...fingers].reverse();
 
   return (
-    <div className="font-mono mb-5 border rounded p-2 text-sm bg-white shadow hover:shadow-md transition-shadow inline-block">
+    <div className="font-mono border rounded p-2 text-sm bg-white shadow hover:shadow-md transition-shadow inline-block">
       {STRING_NAMES.map((stringName, i) => {
         const f = invertedFrets[i];
         const fi = invertedFingers[i];
