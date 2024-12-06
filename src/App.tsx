@@ -22,29 +22,25 @@ function setSequenceInUrl(sequence: string[]) {
 
 const App: React.FC = () => {
   const [chordName, setChordName] = useState('');
-  const [foundChords, setFoundChords] = useState<{chordName:string; shapes:ChordShape[]}[]>([]);
+  const [foundChords, setFoundChords] = useState<{ chordName: string; shapes: ChordShape[] }[]>([]);
 
   const [sequence, setSequence] = useState<string[]>(getSequenceFromUrl());
   const [chosenShapes, setChosenShapes] = useState<ChordShape[]>([]);
 
+  // For the "show more" feature
+  const [showAllChords, setShowAllChords] = useState(false);
+
   useEffect(() => {
-    // On load, we have a sequence from URL, but we need chosenShapes.
-    // Without actual voicing info, we must recalculate chosenShapes:
-    // This is tricky because we need chord shapes for each.
-    // As a simplification, let's recalculate chosen shapes from scratch:
+    // On load, rebuild chosenShapes from the sequence in URL
     (async function rebuildChosenShapes() {
       const newShapes: ChordShape[] = [];
       let prevShape: ChordShape | null = null;
 
       for (const ch of sequence) {
-        // Retrieve shapes for this exact chord name:
-        // We'll do a quick hack: the chord name might not match the fuzzy pattern.
-        // We'll just call getChordShapes and filter by exact chordName:
         const allChords = getChordShapes(ch);
         const matched = allChords.find(c => c.chordName === ch);
         if (!matched || matched.shapes.length === 0) {
-          // no shape found, skip
-          newShapes.push({frets: ['x','x','x','x','x','x'], fingers:[0,0,0,0,0,0]});
+          newShapes.push({ frets: ['x', 'x', 'x', 'x', 'x', 'x'], fingers: [0, 0, 0, 0, 0, 0] });
           continue;
         }
 
@@ -86,13 +82,13 @@ const App: React.FC = () => {
     setFoundChords(chords);
   };
 
-  const chooseShapeForChord = (allShapes: ChordShape[]): ChordShape => {
+  const chooseShapeForChord = (allShapes: ChordShape[], referenceShape?: ChordShape): ChordShape => {
     let chosenShape = allShapes[0];
-    if (sequence.length > 0) {
-      const lastShape = chosenShapes[chosenShapes.length - 1];
+    const ref = referenceShape || (chosenShapes.length > 0 ? chosenShapes[chosenShapes.length - 1] : null);
+    if (ref) {
       let bestDist = Infinity;
       for (const s of allShapes) {
-        const d = chordDistance(lastShape, s);
+        const d = chordDistance(ref, s);
         if (d < bestDist) {
           bestDist = d;
           chosenShape = s;
@@ -104,13 +100,13 @@ const App: React.FC = () => {
 
   const addTopChordToSequence = () => {
     if (foundChords.length === 0) return;
-    // Take the first group's first shape
     const topGroup = foundChords[0];
     if (topGroup.shapes.length === 0) return;
 
     const chosenShape = chooseShapeForChord(topGroup.shapes);
     setSequence([...sequence, topGroup.chordName]);
     setChosenShapes([...chosenShapes, chosenShape]);
+    setChordName(''); // Clear input after adding
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -123,11 +119,21 @@ const App: React.FC = () => {
     addTopChordToSequence();
   };
 
+  const handleAddSpecificChord = (chordName: string, shape: ChordShape) => {
+    // Add this exact shape to the sequence
+    // The chordName given here is the displayName from foundChords
+    // We might want to pick the best shape based on last chord
+    const chosenShape = chooseShapeForChord([shape]);
+    setSequence([...sequence, chordName]);
+    setChosenShapes([...chosenShapes, chosenShape]);
+    setChordName(''); // Clear input
+  };
+
   const handleRemoveFromSequence = (index: number) => {
     const newSeq = [...sequence];
     const newShapes = [...chosenShapes];
-    newSeq.splice(index,1);
-    newShapes.splice(index,1);
+    newSeq.splice(index, 1);
+    newShapes.splice(index, 1);
     setSequence(newSeq);
     setChosenShapes(newShapes);
   };
@@ -138,71 +144,96 @@ const App: React.FC = () => {
     setChordName('');
   };
 
+  // Determine how many chord groups to show
+  const maxVisibleChords = 3;
+  const visibleChords = showAllChords ? foundChords : foundChords.slice(0, maxVisibleChords);
+
   return (
-    <div className="container mx-auto p-4 font-sans">
-      <h1 className="text-3xl font-bold mb-4 text-center">FretNinja</h1>
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={chordName}
-            onChange={(e) => setChordName(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Enter chord name (e.g., Gma for Gmaj7)"
-            className="flex-grow border border-gray-300 rounded p-2"
-          />
-          <button
-            onClick={handleAddToSequence}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 h-10 self-end"
-          >
-            Add
-          </button>
-          <button
-            onClick={handleReset}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 h-10 self-end"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      {foundChords.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Found Chords</h2>
-          {foundChords.map((group, idx) => (
-            <div key={idx} className="mb-6">
-              <h3 className="text-lg font-bold mb-2">{group.chordName}</h3>
-              <div className="flex flex-wrap gap-4">
-                {group.shapes.map((shape, i) => (
-                  <ChordDiagram key={i} frets={shape.frets} fingers={shape.fingers} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {sequence.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Chord Sequence</h2>
-          <div className="flex flex-wrap gap-4">
-            {sequence.map((ch, idx) => (
-              <div key={idx} className="inline-flex flex-col items-center relative border p-2 rounded bg-gray-100">
-                <button
-                  className="absolute top-0 right-0 px-1 text-xs text-white bg-red-500 rounded-bl hover:bg-red-600"
-                  onClick={() => handleRemoveFromSequence(idx)}
-                >
-                  X
-                </button>
-                <strong className="block font-semibold mb-1 text-center">{ch}</strong>
-                {chosenShapes[idx] && (
-                  <ChordDiagram frets={chosenShapes[idx].frets} fingers={chosenShapes[idx].fingers} />
-                )}
-              </div>
-            ))}
+    <div className='bg-stone-200 min-h-screen'>
+      <div className="container mx-auto p-4 font-sans">
+        <h1 className="text-3xl font-bold mb-4 text-center">🥷 FretNinja 🥷</h1>
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={chordName}
+              onChange={(e) => setChordName(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter chord name (e.g., Gma for Gmaj7)"
+              className="flex-grow border border-gray-300 rounded p-2"
+            />
+            <button
+              onClick={handleAddToSequence}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 h-10 self-end"
+            >
+              Add
+            </button>
+            <button
+              onClick={handleReset}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 h-10 self-end"
+            >
+              Reset
+            </button>
           </div>
         </div>
-      )}
+
+        {foundChords.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Found Chords</h2>
+            <div className='grid grid-cols-2 gap-5'>
+              {visibleChords.map((group, idx) => (
+                <div key={idx} className={`${idx === 0 ? 'col-span-2' : ''}`}>
+                  <h3 className="text-lg font-bold mb-2">{group.chordName}</h3>
+                  <div className='flex flex-nowrap gap-4 overflow-x-auto'>
+                    {group.shapes.map((shape, i) => (
+                      <div key={i} className="relative">
+                        <ChordDiagram frets={shape.frets} fingers={shape.fingers} />
+                        <button
+                          className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
+                          onClick={() => handleAddSpecificChord(group.chordName, shape)}
+                        >
+                          Add
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {foundChords.length > maxVisibleChords && (
+              <button
+                className="text-blue-600 underline hover:text-blue-800"
+                onClick={() => setShowAllChords(!showAllChords)}
+              >
+                {showAllChords ? 'Show less' : 'Show more'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {sequence.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-2">Chord Sequence</h2>
+            <div className="flex flex-wrap gap-4">
+              {sequence.map((ch, idx) => (
+                <div key={idx} className="inline-flex flex-col items-center relative border p-2 rounded bg-gray-100">
+                  <button
+                    className="absolute top-0 right-0 px-1 text-xs text-white bg-red-500 rounded-bl hover:bg-red-600"
+                    onClick={() => handleRemoveFromSequence(idx)}
+                  >
+                    X
+                  </button>
+                  <strong className="block font-semibold mb-1 text-center">{ch}</strong>
+                  {chosenShapes[idx] && (
+                    <ChordDiagram frets={chosenShapes[idx].frets} fingers={chosenShapes[idx].fingers} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
