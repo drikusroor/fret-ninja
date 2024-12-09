@@ -1,7 +1,7 @@
 import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { getChordShapes, chordDistance } from './chordLogic';
+import { ChordShapeRefined } from './types/chord-shape';
 import { ChordDiagram } from './ChordDiagram';
-import ChordShape from './types/chord-shape';
 
 // Utility to parse and store sequence in URL
 function getSequenceFromUrl(): string[] {
@@ -23,10 +23,10 @@ function setSequenceInUrl(sequence: string[]) {
 
 const App: React.FC = () => {
   const [chordName, setChordName] = useState('');
-  const [foundChords, setFoundChords] = useState<{ chordName: string; shapes: ChordShape[] }[]>([]);
+  const [foundChords, setFoundChords] = useState<{ chordName: string; shapes: ChordShapeRefined[] }[]>([]);
 
   const [sequence, setSequence] = useState<string[]>(getSequenceFromUrl());
-  const [chosenShapes, setChosenShapes] = useState<ChordShape[]>([]);
+  const [chosenShapes, setChosenShapes] = useState<ChordShapeRefined[]>([]);
 
   // For the "show more" feature
   const [showAllChords, setShowAllChords] = useState(false);
@@ -34,8 +34,8 @@ const App: React.FC = () => {
   useEffect(() => {
     // On load, rebuild chosenShapes from the sequence in URL
     (async function rebuildChosenShapes() {
-      const newShapes: ChordShape[] = [];
-      let prevShape: ChordShape | null = null;
+      const newShapes: ChordShapeRefined[] = [];
+      let prevShape: ChordShapeRefined | null = null;
 
       for (const ch of sequence) {
         const allChords = getChordShapes(ch);
@@ -83,7 +83,7 @@ const App: React.FC = () => {
     setFoundChords(chords);
   };
 
-  const chooseShapeForChord = (allShapes: ChordShape[], referenceShape?: ChordShape): ChordShape => {
+  const chooseShapeForChord = (allShapes: ChordShapeRefined[], referenceShape?: ChordShapeRefined): ChordShapeRefined => {
     let chosenShape = allShapes[0];
     const ref = referenceShape || (chosenShapes.length > 0 ? chosenShapes[chosenShapes.length - 1] : null);
     if (ref) {
@@ -120,7 +120,7 @@ const App: React.FC = () => {
     addTopChordToSequence();
   };
 
-  const handleAddSpecificChord = (chordName: string, shape: ChordShape) => {
+  const handleAddSpecificChord = (chordName: string, shape: ChordShapeRefined) => {
     // Add this exact shape to the sequence
     // The chordName given here is the displayName from foundChords
     // We might want to pick the best shape based on last chord

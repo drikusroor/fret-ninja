@@ -157,7 +157,7 @@ function allRotations(notes: string[]): string[][] {
   return rotations;
 }
 
-export function getChordShapes(chordName: string): { chordName: string; shapes: ChordShape[] }[] {
+export function getChordShapes(chordName: string): { chordName: string; shapes: ChordShapeRefined[] }[] {
   const parsed = parseChordName(chordName);
   if (!parsed) return [];
   const { root, quality, bass } = parsed;
@@ -170,7 +170,7 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
 
   if (matchedChords.length === 0) return [];
 
-  const results: { chordName: string; shapes: ChordShape[] }[] = [];
+  const results: { chordName: string; shapes: ChordShapeRefined[] }[] = [];
 
   matchedChords.forEach((gQuality) => {
     const displayName = root === "G" ? gQuality : root + gQuality.substring(1);
@@ -195,9 +195,6 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
   // After fetching mainResult and gQualityUsed
   const mainResult = results[0];
   const gQualityUsed = matchedChords[0];
-
-  // Original line:
-  // let chordNotes = G_CHORDS[gQualityUsed].notes.map(normalizeNoteName);
 
   // New code to transpose chordNotes to the requested root
   let chordNotes = G_CHORDS[gQualityUsed].notes.map(normalizeNoteName);

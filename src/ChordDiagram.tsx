@@ -1,12 +1,12 @@
 import React from 'react';
-import ChordShape from './types/chord-shape';
+import { ChordShapeRefined } from './types/chord-shape';
 import { audioService } from './utils/audioService';
 
 const STRING_NAMES = ["e", "b", "g", "d", "a", "e"];
 
 interface ChordDiagramProps {
-  frets: ChordShape['frets'];
-  fingers: ChordShape['fingers'];
+  frets: ChordShapeRefined['frets'];
+  fingers: ChordShapeRefined['fingers'];
   onAdd?: () => void;  // Make onAdd optional
 }
 
