@@ -33,7 +33,7 @@ function normalizeNoteName(n: string): string {
     Des: "C#", Dis: "D#", Es: "D#", Fis: "F#", Ges: "F#",
     H: "B", "H#": "C"
   };
-  let root = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+  const root = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
   if (map[root]) return map[root];
   return root;
 }
@@ -460,7 +460,7 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
     const shapes = G_CHORDS[gQuality].shapes
       .map(shape => root === "G" ? shape : transposeChordShape(shape, "G", root))
       .filter(s => s !== null)
-      .sort((a, b) => {
+      .sort((a: ChordShape, b: ChordShape) => {
         const aFretsAVG = a!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / a!.fingers.filter(f => f !== 0).length;
         const bFretsAVG = b!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / b!.fingers.filter(f => f !== 0).length;
 
