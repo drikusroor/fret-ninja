@@ -191,13 +191,11 @@ const App: React.FC = () => {
                   <div className='flex flex-nowrap gap-4 overflow-x-auto'>
                     {group.shapes.map((shape, i) => (
                       <div key={i} className="relative">
-                        <ChordDiagram frets={shape.frets} fingers={shape.fingers} />
-                        <button
-                          className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
-                          onClick={() => handleAddSpecificChord(group.chordName, shape)}
-                        >
-                          Add
-                        </button>
+                        <ChordDiagram
+                          frets={shape.frets}
+                          fingers={shape.fingers}
+                          onAdd={() => handleAddSpecificChord(group.chordName, shape)}
+                        />
                       </div>
                     ))}
                   </div>
@@ -230,7 +228,10 @@ const App: React.FC = () => {
                   </button>
                   <strong className="block font-semibold mb-1 text-center">{ch}</strong>
                   {chosenShapes[idx] && (
-                    <ChordDiagram frets={chosenShapes[idx].frets} fingers={chosenShapes[idx].fingers} />
+                    <ChordDiagram
+                      frets={chosenShapes[idx].frets}
+                      fingers={chosenShapes[idx].fingers}
+                    />
                   )}
                 </div>
               ))}
