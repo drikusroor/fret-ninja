@@ -4,6 +4,8 @@
 
 Fret Ninja is a React-based web application to search for guitar chords, view chord voicings, and build chord sequences. It aims to help guitarists find and sequence chords more easily, with features like fuzzy search, transposition, and minimal hand-movement voicing selection.
 
+You can try it out here: https://drikusroor.github.io/fret-ninja/
+
 ## What the App Does
 
 Fret Ninja allows you to type in a chord name (or partial chord name) and instantly see potential chord voicings on the guitar. It focuses on chords derived from G-based chord shapes but can transpose them to other keys. For example, typing "Gma" will show you chords like Gmaj7 and Gmaj7(b5).
