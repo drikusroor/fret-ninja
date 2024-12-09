@@ -33,9 +33,9 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
         notes: ["G", "B", "D", "F"],
         shapes: [
             { frets: ["3", "2", "0", "0", "0", "1"], fingersOpen: [3, 2, 0, 0, 0, 1] },
-            { frets: ["3", "5", "3", "4", "6", "3"], fingers: [1, 3, 1, 2, 4, 1] },
-            { frets: ["3", "x", "3", "4", "3", "x"], fingers: [2, 0, 3, 4, 3, 0] },
-            { frets: ["x", "x", "5", "7", "6", "7"], fingers: [0, 0, 2, 3, 4, 3] },
+            { frets: ["3", "5", "3", "4", "6", "3"], fingers: [1, 3, 1, 2, 4, 1], fingersOpen: [0, 2, 0, 1, 3, 0] },
+            { frets: ["3", "x", "3", "4", "3", "x"], fingers: [2, 0, 3, 4, 3, 0], fingersOpen: [0, 0, 1, 2, 1, 0] },
+            { frets: ["x", "x", "5", "7", "6", "7"], fingers: [0, 0, 2, 3, 4, 3], fingersOpen: [0, 0, 0, 2, 1, 3] },
         ],
     },
     Gm7: {
