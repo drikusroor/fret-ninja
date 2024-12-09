@@ -149,7 +149,7 @@ const App: React.FC = () => {
   const visibleChords = showAllChords ? foundChords : foundChords.slice(0, maxVisibleChords);
 
   return (
-    <div className='bg-stone-200 min-h-screen'>
+    <div className='bg-indigo-100 min-h-screen'>
       <div className="container mx-auto p-4 font-sans">
         <h1 className="text-3xl font-bold mb-4 text-center">🥷 FretNinja 🥷</h1>
         <div className="mb-4">
@@ -180,7 +180,7 @@ const App: React.FC = () => {
         {foundChords.length > 0 && (
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Found Chords</h2>
-            <div className='grid grid-cols-2 gap-5'>
+            <div className='flex flex-col gap-5'>
               {visibleChords.map((group, idx) => (
                 <div key={idx} className={`${idx === 0 ? 'col-span-2' : ''}`}>
                   <h3 className="text-lg font-bold mb-2">{group.chordName}</h3>
