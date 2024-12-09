@@ -7,7 +7,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
             { frets: ["3", "2", "0", "0", "0", "3"], fingersOpen: [2, 1, 0, 0, 0, 3], fingers: [3, 2, 1, 1, 1, 4] },
             { frets: ["3", "5", "5", "4", "3", "3"], fingers: [1, 3, 4, 2, 1, 1], fingersOpen: [0, 3, 4, 1, 0, 0] },
             { frets: ["3", "x", "0", "0", "0", "3"], fingersOpen: [2, 0, 0, 0, 0, 3], fingers: [3, 0, 1, 1, 1, 4] },
-            { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1] },
+            { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1], fingersOpen: [0, 0, 2, 3, 0, 0] },
             { frets: ["x", "10", "9", "7", "8", "7"], fingers: [0, 4, 3, 1, 2, 1] },
         ],
     },
