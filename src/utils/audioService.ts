@@ -56,7 +56,7 @@ const NOTE_FREQUENCIES: Record<string, number> = {
       
       // Set envelope
       gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.002);
       gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
       gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
       
