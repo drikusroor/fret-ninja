@@ -1,12 +1,12 @@
-# FretNinja
+# Fret Ninja
 
 <img src="public/logo.png" width="64" height="64" alt="Fret Ninja logo, a ninja-like figure with a guitar-shaped torso." style="float: left; margin: 1rem;" />
 
-FretNinja is a React-based web application to search for guitar chords, view chord voicings, and build chord sequences. It aims to help guitarists find and sequence chords more easily, with features like fuzzy search, transposition, and minimal hand-movement voicing selection.
+Fret Ninja is a React-based web application to search for guitar chords, view chord voicings, and build chord sequences. It aims to help guitarists find and sequence chords more easily, with features like fuzzy search, transposition, and minimal hand-movement voicing selection.
 
 ## What the App Does
 
-FretNinja allows you to type in a chord name (or partial chord name) and instantly see potential chord voicings on the guitar. It focuses on chords derived from G-based chord shapes but can transpose them to other keys. For example, typing "Gma" will show you chords like Gmaj7 and Gmaj7(b5).
+Fret Ninja allows you to type in a chord name (or partial chord name) and instantly see potential chord voicings on the guitar. It focuses on chords derived from G-based chord shapes but can transpose them to other keys. For example, typing "Gma" will show you chords like Gmaj7 and Gmaj7(b5).
 
 You can add found chords to a sequence. The app tries to select fingerings that minimize hand movement from one chord to the next. Once you've built a sequence, you can share it via a URL parameter so others can see and play your chord progression.
 
@@ -57,7 +57,7 @@ You can add found chords to a sequence. The app tries to select fingerings that 
 - **Fuzzy Chord Search:** The `getChordShapes()` function attempts to match partial chord qualities against a G-based chord database.
 - **Transposition:** Chords are initially defined for the key of G. If another root is requested (e.g., Cmaj7), it transposes the G-based shape.
 - **Sequence Management:** Sequences are stored in the URL and kept in sync with React state. Adding and removing chords updates the UI and URL.
-- **Minimal Movement Selection:** When adding new chords, FretNinja tries to pick a voicing that minimizes the "distance" from the previous chord's voicing.
+- **Minimal Movement Selection:** When adding new chords, Fret Ninja tries to pick a voicing that minimizes the "distance" from the previous chord's voicing.
 - **Collapsible Result Sets:** If more than 3 chord sets are found, only the first three show by default. A button toggles the visibility of the rest.
 
 ## Running the Project
@@ -83,8 +83,8 @@ bun run build # bun run build
 - The fuzzy search is basic. A more robust search or chord-finding logic could be integrated.
 - Finger assignments are simplified and might not reflect the most ergonomic or standard fingering choices.
 
-Despite these limitations, FretNinja provides a flexible and visually clear way to experiment with chords and share your sequences.
+Despite these limitations, Fret Ninja provides a flexible and visually clear way to experiment with chords and share your sequences.
 
 ## Contributing
 
-We welcome PRs to improve or expand the list of chords and qualities, or improve / fix FretNinja in any other way. If you have suggestions or improvements, please feel free to contribute!
+We welcome PRs to improve or expand the list of chords and qualities, or improve / fix Fret Ninja in any other way. If you have suggestions or improvements, please feel free to contribute!
