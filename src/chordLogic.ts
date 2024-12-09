@@ -55,8 +55,9 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     notes: ["G", "B", "D"],
     shapes: [
       { frets: ["3", "2", "0", "0", "0", "3"], fingers: [2, 1, 0, 0, 0, 3] },
+      { frets: ["3", "5", "5", "4", "3", "3"], fingers: [1, 3, 4, 2, 1, 1] },
       { frets: ["3", "x", "0", "0", "0", "3"], fingers: [2, 0, 0, 0, 0, 3] },
-      { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1] }, // inversion
+      { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1] },
     ],
   },
   Gm: {
@@ -64,7 +65,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     shapes: [
       { frets: ["3", "1", "0", "0", "3", "3"], fingers: [2, 1, 0, 0, 3, 4] },
       { frets: ["3", "x", "0", "3", "3", "3"], fingers: [2, 0, 0, 3, 3, 3] },
-      { frets: ["x", "x", "5", "3", "3", "3"], fingers: [0, 0, 4, 2, 1, 1] }, // inversion
+      { frets: ["x", "x", "5", "3", "3", "3"], fingers: [0, 0, 4, 2, 1, 1] },
     ],
   },
   Gmaj7: {
@@ -72,15 +73,16 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     shapes: [
       { frets: ["3", "2", "0", "0", "0", "2"], fingers: [2, 1, 0, 0, 0, 3] },
       { frets: ["x", "x", "4", "4", "3", "2"], fingers: [0, 0, 3, 4, 2, 1] },
-      { frets: ["3", "x", "4", "4", "4", "x"], fingers: [2, 0, 3, 3, 3, 0] },
+      { frets: ["3", "x", "4", "4", "3", "x"], fingers: [2, 0, 3, 3, 2, 0] },
     ],
   },
   G7: {
     notes: ["G", "B", "D", "F"],
     shapes: [
       { frets: ["3", "2", "0", "0", "0", "1"], fingers: [3, 2, 0, 0, 0, 1] },
+      { frets: ["3", "5", "3", "4", "6", "3"], fingers: [1, 3, 1, 2, 4, 1] },
       { frets: ["3", "x", "3", "4", "3", "x"], fingers: [2, 0, 3, 4, 3, 0] },
-      { frets: ["x", "x", "5", "7", "6", "7"], fingers: [0, 0, 2, 4, 3, 4] },
+      { frets: ["x", "x", "5", "7", "6", "7"], fingers: [0, 0, 2, 3, 4, 3] },
     ],
   },
   Gm7: {
