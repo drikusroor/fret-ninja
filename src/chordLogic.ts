@@ -409,6 +409,12 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
   return { frets: newFrets, fingers: gShape.fingers };
 }
 
+function directMatch(quality: string): string[] {
+  const keys = Object.keys(G_CHORDS);
+  const query = `G${quality}`;
+  return keys.filter(k => k === query);
+}
+
 function partialMatch(quality: string): string[] {
   const keys = Object.keys(G_CHORDS);
   return keys.filter(k => k.startsWith("G") && k.toLowerCase().includes(quality.toLowerCase()));
@@ -427,7 +433,12 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
   if (!parsed) return [];
   const { root, quality, bass } = parsed;
 
-  const matchedChords = partialMatch(quality);
+  let matchedChords = directMatch(quality);
+
+  if (matchedChords.length === 0) {
+    matchedChords = partialMatch(quality);
+  }
+
   if (matchedChords.length === 0) return [];
 
   const results: { chordName: string; shapes: ChordShape[] }[] = [];
