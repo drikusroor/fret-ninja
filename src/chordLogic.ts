@@ -130,7 +130,9 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
     newFrets = newFrets.map(f => f === 'x' ? 'x' : (parseInt(f as string, 10) - 12).toString());
   }
 
-  return { frets: newFrets, fingers: gShape.fingers };
+  const isOpen = newFrets.some(f => f === '0');
+
+  return { frets: newFrets, fingers: isOpen ? gShape.fingersOpen : gShape.fingers };
 }
 
 function directMatch(quality: string): string[] {
@@ -172,7 +174,7 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
 
     const shapes = G_CHORDS[gQuality].shapes
       .map(shape => root === "G" ? shape : transposeChordShape(shape, "G", root))
-      .filter(s => s !== null)
+      .filter(s => s?.fingers)
       .sort((a: ChordShape, b: ChordShape) => {
         const aFretsAVG = a!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / a!.fingers.filter(f => f !== 0).length;
         const bFretsAVG = b!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / b!.fingers.filter(f => f !== 0).length;
