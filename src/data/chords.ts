@@ -4,9 +4,9 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     G: {
         notes: ["G", "B", "D"],
         shapes: [
-            { frets: ["3", "2", "0", "0", "0", "3"], fingers: [2, 1, 0, 0, 0, 3] },
+            { frets: ["3", "2", "0", "0", "0", "3"], fingersOpen: [2, 1, 0, 0, 0, 3], fingers: [3, 2, 1, 1, 1, 4] },
             { frets: ["3", "5", "5", "4", "3", "3"], fingers: [1, 3, 4, 2, 1, 1] },
-            { frets: ["3", "x", "0", "0", "0", "3"], fingers: [2, 0, 0, 0, 0, 3] },
+            { frets: ["3", "x", "0", "0", "0", "3"], fingersOpen: [2, 0, 0, 0, 0, 3], fingers: [3, 0, 1, 1, 1, 4] },
             { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1] },
             { frets: ["x", "10", "9", "7", "8", "7"], fingers: [0, 4, 3, 1, 2, 1] },
         ],
@@ -14,11 +14,11 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     Gm: {
         notes: ["G", "Bb", "D"],
         shapes: [
-            { frets: ["3", "1", "0", "0", "3", "3"], fingers: [2, 1, 0, 0, 3, 4] },
-            { frets: ["3", "x", "0", "3", "3", "3"], fingers: [2, 0, 0, 3, 3, 3] },
-            { frets: ["x", "x", "5", "3", "3", "3"], fingers: [0, 0, 4, 2, 1, 1] },
-            { frets: ["3", "5", "5", "3", "3", "3"], fingers: [1, 3, 4, 1, 1, 1] },
-            { frets: ["x", "10", "12", "12", "11", "10"], fingers: [0, 2, 4, 4, 3, 1] },
+            { frets: ["3", "1", "0", "0", "3", "3"], fingersOpen: [2, 1, 0, 0, 3, 4] },
+            { frets: ["3", "x", "0", "3", "3", "3"], fingersOpen: [2, 0, 0, 3, 3, 3] },
+            { frets: ["x", "x", "5", "3", "3", "3"], fingers: [0, 0, 4, 2, 1, 1], fingersOpen: [0, 0, 3, 0, 0, 0] },
+            { frets: ["3", "5", "5", "3", "3", "3"], fingers: [1, 3, 4, 1, 1, 1], fingersOpen: [0, 2, 3, 0, 0, 0] },
+            { frets: ["x", "10", "12", "12", "11", "10"], fingersOpen: [0, 0, 3, 4, 1, 0], fingers: [0, 1, 3, 4, 2, 1] },
         ],
     },
     Gmaj7: {
@@ -32,7 +32,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     G7: {
         notes: ["G", "B", "D", "F"],
         shapes: [
-            { frets: ["3", "2", "0", "0", "0", "1"], fingers: [3, 2, 0, 0, 0, 1] },
+            { frets: ["3", "2", "0", "0", "0", "1"], fingersOpen: [3, 2, 0, 0, 0, 1] },
             { frets: ["3", "5", "3", "4", "6", "3"], fingers: [1, 3, 1, 2, 4, 1] },
             { frets: ["3", "x", "3", "4", "3", "x"], fingers: [2, 0, 3, 4, 3, 0] },
             { frets: ["x", "x", "5", "7", "6", "7"], fingers: [0, 0, 2, 3, 4, 3] },
