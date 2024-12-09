@@ -76,13 +76,20 @@ const NOTE_FREQUENCIES: Record<string, number> = {
     }
   
     playChord(frets: (string | number)[]) {
-      if (this.isPlaying) return;
+      if (this.isPlaying) {
+        // stop previous chord with short fade out
+        this.isPlaying = false;
+        setTimeout(() => {
+          this.playChord(frets);
+        }, 5);
+        return;
+      }
       this.isPlaying = true;
   
       const ctx = this.initAudioContext();
       const now = ctx.currentTime;
-      const noteDuration = 0.5;
-      const arpeggioDelay = 0.12;
+      const noteDuration = 2.5;
+      const arpeggioDelay = 0.18;
   
       // Filter out muted strings and convert fret numbers
       const validNotes = frets.map((fret, index) => ({
