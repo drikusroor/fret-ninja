@@ -6,6 +6,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
             { frets: ["3", "5", "5", "4", "3", "3"], fingers: [1, 3, 4, 2, 1, 1] },
             { frets: ["3", "x", "0", "0", "0", "3"], fingers: [2, 0, 0, 0, 0, 3] },
             { frets: ["x", "x", "5", "4", "3", "3"], fingers: [0, 0, 4, 3, 2, 1] },
+            { frets: ["x", "10", "9", "7", "8", "7"], fingers: [0, 4, 3, 1, 2, 1] },
         ],
     },
     Gm: {
@@ -14,6 +15,8 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
             { frets: ["3", "1", "0", "0", "3", "3"], fingers: [2, 1, 0, 0, 3, 4] },
             { frets: ["3", "x", "0", "3", "3", "3"], fingers: [2, 0, 0, 3, 3, 3] },
             { frets: ["x", "x", "5", "3", "3", "3"], fingers: [0, 0, 4, 2, 1, 1] },
+            { frets: ["3", "5", "5", "3", "3", "3"], fingers: [1, 3, 4, 1, 1, 1] },
+            { frets: ["x", "10", "12", "12", "11", "10"], fingers: [0, 2, 4, 4, 3, 1] },
         ],
     },
     Gmaj7: {
@@ -41,6 +44,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
             { frets: ["x", "x", "5", "3", "6", "3"], fingers: [0, 0, 3, 1, 4, 1] }, // inversion
             { frets: ["3", "5", "3", "3", "3", "3"], fingers: [1, 3, 1, 1, 1, 1] }, // barre style
             { frets: ["3", "x", "3", "3", "3", "x"], fingers: [2, 0, 2, 2, 2, 0] }, // bossa nova style
+            { frets: ["x", "10", "12", "10", "11", "10"], fingers: [0, 1, 3, 1, 2, 1] },
         ],
     },
     G9: {
@@ -94,6 +98,8 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
             { frets: ["3", "x", "2", "4", "3", "x"], fingers: [2, 0, 1, 4, 3, 0] },
             { frets: ["x", "10", "9", "9", "8", "x"], fingers: [0, 4, 3, 2, 1, 0] },
             { frets: ["3", "5", "2", "4", "x", "x"], fingers: [3, 2, 1, 4, 0, 0] },
+            { frets: ["3", "x", "2", "4", "3", "x"], fingers: [2, 0, 1, 4, 3, 0] },
+            { frets: ["x", "10", "x", "9", "11", "10"], fingers: [0, 2, 0, 1, 4, 3] },
         ],
     },
 
