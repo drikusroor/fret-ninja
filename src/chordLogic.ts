@@ -1,5 +1,5 @@
 import G_CHORDS from "./data/chords";
-import ChordShape from "./types/chord-shape";
+import ChordShape, { ChordShapeRefined } from "./types/chord-shape";
 
 export const NOTE_MAP: Record<string, number> = {
   C: 0,
@@ -102,7 +102,7 @@ function identifyChord(notes: string[]): { root: string; name: string } | null {
   return null;
 }
 
-function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: string): ChordShape | null {
+function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: string): ChordShapeRefined | null {
 
   const fromSemitone = NOTE_MAP[fromRoot];
   const toSemitone = NOTE_MAP[toRoot];
@@ -131,8 +131,11 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
   }
 
   const isOpen = newFrets.some(f => f === '0');
+  const refinedFingerPositions = isOpen ? gShape.fingersOpen : gShape.fingers;
 
-  return { frets: newFrets, fingers: isOpen ? gShape.fingersOpen : gShape.fingers };
+  if (!refinedFingerPositions) return null;
+
+  return { frets: newFrets, fingers: refinedFingerPositions };
 }
 
 function directMatch(quality: string): string[] {
@@ -173,14 +176,14 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
     const displayName = root === "G" ? gQuality : root + gQuality.substring(1);
 
     const shapes = G_CHORDS[gQuality].shapes
-      .map(shape => root === "G" ? shape : transposeChordShape(shape, "G", root))
-      .filter(s => s?.fingers)
-      .sort((a: ChordShape, b: ChordShape) => {
+      .map(shape => transposeChordShape(shape, "G", root))
+      .filter(s => s !== null)
+      .sort((a: ChordShapeRefined, b: ChordShapeRefined) => {
         const aFretsAVG = a!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / a!.fingers.filter(f => f !== 0).length;
         const bFretsAVG = b!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / b!.fingers.filter(f => f !== 0).length;
 
         return aFretsAVG - bFretsAVG;
-      }) as ChordShape[];
+      }) as ChordShapeRefined[];
 
     if (shapes.length > 0) {
       results.push({ chordName: displayName, shapes });
