@@ -1,3 +1,5 @@
+import ChordShape from "../types/chord-shape";
+
 const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
     G: {
         notes: ["G", "B", "D"],

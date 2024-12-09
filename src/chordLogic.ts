@@ -1,9 +1,5 @@
 import G_CHORDS from "./data/chords";
-
-export type ChordShape = {
-  frets: (string | number)[];
-  fingers: (number | 0)[];
-};
+import ChordShape from "./types/chord-shape";
 
 export const NOTE_MAP: Record<string, number> = {
   C: 0,
