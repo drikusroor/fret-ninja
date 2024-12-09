@@ -1,6 +1,6 @@
 import React from 'react';
 import ChordShape from './types/chord-shape';
-import { audioService } from '@/utils/audioService';
+import { audioService } from './utils/audioService';
 
 const STRING_NAMES = ["e", "b", "g", "d", "a", "e"];
 
