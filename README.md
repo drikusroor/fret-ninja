@@ -82,3 +82,7 @@ bun run build # bun run build
 - Finger assignments are simplified and might not reflect the most ergonomic or standard fingering choices.
 
 Despite these limitations, FretNinja provides a flexible and visually clear way to experiment with chords and share your sequences.
+
+## Contributing
+
+We welcome PRs to improve or expand the list of chords and qualities, or improve / fix FretNinja in any other way. If you have suggestions or improvements, please feel free to contribute!
