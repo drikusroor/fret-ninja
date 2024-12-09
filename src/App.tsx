@@ -152,7 +152,10 @@ const App: React.FC = () => {
   return (
     <div className='bg-indigo-100 min-h-screen'>
       <div className="container mx-auto p-4 font-sans">
-        <h1 className="text-3xl font-bold mb-4 text-center">🥷 FretNinja 🥷</h1>
+        <h1 className="text-3xl font-bold mb-4 text-center">
+          <img src="logo.png" alt="Fret Ninja" className="inline-block w-16 h-16 mr-2 rounded-lg" />
+          Fret Ninja
+        </h1>
         <div className="mb-4">
           <div className="flex items-center gap-2">
             <input
