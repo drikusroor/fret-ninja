@@ -459,7 +459,13 @@ export function getChordShapes(chordName: string): { chordName: string; shapes: 
 
     const shapes = G_CHORDS[gQuality].shapes
       .map(shape => root === "G" ? shape : transposeChordShape(shape, "G", root))
-      .filter(s => s !== null) as ChordShape[];
+      .filter(s => s !== null)
+      .sort((a, b) => {
+        const aFretsAVG = a!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / a!.fingers.filter(f => f !== 0).length;
+        const bFretsAVG = b!.frets.filter(f => f !== 'x').map(f => parseInt(f as string)).reduce((a, b) => a + b, 0) / b!.fingers.filter(f => f !== 0).length;
+
+        return aFretsAVG - bFretsAVG;
+      }) as ChordShape[];
 
     if (shapes.length > 0) {
       results.push({ chordName: displayName, shapes });
