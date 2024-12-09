@@ -1,6 +1,7 @@
 import React, { useState, useEffect, KeyboardEvent } from 'react';
-import { getChordShapes, chordDistance, ChordShape } from './chordLogic';
+import { getChordShapes, chordDistance } from './chordLogic';
 import { ChordDiagram } from './ChordDiagram';
+import ChordShape from './types/chord-shape';
 
 // Utility to parse and store sequence in URL
 function getSequenceFromUrl(): string[] {

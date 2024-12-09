@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChordShape } from './chordLogic';
+import ChordShape from './types/chord-shape';
 
 const STRING_NAMES = ["e","b","g","d","a","e"];
 
