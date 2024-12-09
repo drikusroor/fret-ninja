@@ -1,5 +1,7 @@
 # FretNinja
 
+<img src="public/logo.png" width="64" height="64" alt="Fret Ninja logo, a ninja-like figure with a guitar-shaped torso." style="float: left; margin: 1rem;" />
+
 FretNinja is a React-based web application to search for guitar chords, view chord voicings, and build chord sequences. It aims to help guitarists find and sequence chords more easily, with features like fuzzy search, transposition, and minimal hand-movement voicing selection.
 
 ## What the App Does
