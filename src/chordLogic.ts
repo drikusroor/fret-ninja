@@ -143,6 +143,7 @@ const G_CHORDS: Record<string, { notes: string[], shapes: ChordShape[] }> = {
       { frets: ["3", "2", "0", "0", "0", "0"], fingers: [3, 2, 0, 0, 0, 0] },
       { frets: ["3", "x", "2", "4", "3", "x"], fingers: [2, 0, 1, 4, 3, 0] },
       { frets: ["x", "10", "9", "9", "8", "x"], fingers: [0, 4, 3, 2, 1, 0] },
+      { frets: ["3", "5", "2", "4", "x", "x"], fingers: [3, 2, 1, 4, 0, 0] },
     ],
   },
 
@@ -387,11 +388,12 @@ function identifyChord(notes: string[]): { root: string; name: string } | null {
 }
 
 function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: string): ChordShape | null {
+
   const fromSemitone = NOTE_MAP[fromRoot];
   const toSemitone = NOTE_MAP[toRoot];
   const interval = (toSemitone - fromSemitone + 12) % 12;
+  let newFrets: (string | number)[] = [];
 
-  const newFrets: (string | number)[] = [];
   for (let i = 0; i < gShape.frets.length; i++) {
     const f = gShape.frets[i];
     if (f === 'x') {
@@ -402,8 +404,15 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
     const oldPitch = STRING_PITCHES[i] + oldFret;
     const newPitch = oldPitch + interval;
     const newFret = newPitch - STRING_PITCHES[i];
-    if (newFret < 0 || newFret > 12) return null;
+    if (newFret < 0) return null;
     newFrets.push(newFret === 0 ? "0" : newFret.toString());
+  }
+
+  // If there are any chords of which all frets are never below 12, we should subtract 12 from all frets.
+  const overTwelve = newFrets.every(f => f === 'x' || f !== 'x' && parseInt(f as string, 10) >= 12);
+
+  if (overTwelve) {
+    newFrets = newFrets.map(f => f === 'x' ? 'x' : (parseInt(f as string, 10) - 12).toString());
   }
 
   return { frets: newFrets, fingers: gShape.fingers };
@@ -412,7 +421,7 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
 function directMatch(quality: string): string[] {
   const keys = Object.keys(G_CHORDS);
   const query = `G${quality}`;
-  return keys.filter(k => k === query);
+  return keys.filter(k => k.toLowerCase() === query.toLowerCase());
 }
 
 function partialMatch(quality: string): string[] {
