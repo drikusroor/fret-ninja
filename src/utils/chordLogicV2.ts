@@ -1,3 +1,5 @@
+// chordLogicV2.ts
+
 type Chord = {
     root: string;
     chordType: string;
