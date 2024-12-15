@@ -2,7 +2,7 @@ import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { getChordShapes, chordDistance } from './utils/chordLogic';
 import { ChordShapeRefined } from './types/chord-shape';
 import { ChordDiagram } from './ChordDiagram';
-import { chordToNotes, findInterchangeableChords } from './utils/chordLogicV2';
+import { chordToNotes, findChordShapes, findInterchangeableChords, standardGuitar } from './utils/chordLogicV2';
 
 // Utility to parse and store sequence in URL
 function getSequenceFromUrl(): string[] {
@@ -86,7 +86,9 @@ const App: React.FC = () => {
     const trimmed = chordName.trim();
     const notes = chordToNotes(trimmed);
     const equivalentChords = findInterchangeableChords(trimmed);
-    console.log({ notes, equivalentChords });
+    const instrument = standardGuitar;
+    const chordShapes = findChordShapes(chordName, instrument);
+    console.log({ notes, equivalentChords, chordShapes });
 
     setFoundChords(chords);
   };
