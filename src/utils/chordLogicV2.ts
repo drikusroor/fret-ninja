@@ -400,14 +400,14 @@ export function findInterchangeableChords(
       // Construct chord name with bass if necessary
       if (targetChord.bass !== undefined) {
         return {
-          ...chordToNotes(chord.name, normalized),
+          ...(chordToNotes(chord.name, normalized) as ChordNotes),
           bass: targetChord.bass, // Ensure same bass
         };
       } else {
-        return chordToNotes(chord.name, normalized);
+        return chordToNotes(chord.name, normalized) as ChordNotes;
       }
     })
-    .filter((chord) => chord !== null) as ChordNotes[];
+    .filter((chord): chord is ChordNotes => chord !== null); // Type guard
 
   // If a bass note is specified in the original chord, filter results to have the same bass
   if (targetChord.bass !== undefined) {
@@ -468,11 +468,15 @@ export function findChordShapes(
    * @param currentFretList The current list of frets assigned to strings.
    * @param currentNotesCovered The set of chord notes covered so far.
    * @param stringIndex The current string being processed.
+   * @param minFret The lowest fret assigned so far (excluding 0).
+   * @param maxFret The highest fret assigned so far.
    */
   function backtrack(
     currentFretList: (number | "x")[],
     currentNotesCovered: Set<number>,
-    stringIndex: number
+    stringIndex: number,
+    minFret: number | null,
+    maxFret: number | null
   ) {
     if (results.length >= limit) {
       return;
@@ -481,22 +485,29 @@ export function findChordShapes(
     if (stringIndex === instrument.tuning.length) {
       // All strings processed
       // Check if all required notes are covered
-      if (
-        requiredNotes.every((note) => currentNotesCovered.has(note)) &&
-        (bassNote === undefined ||
-          currentFretList[0] === "x" ||
-          (() => {
-            // Ensure the bass note is the lowest played note
-            for (let i = 0; i < currentFretList.length; i++) {
-              const fret = currentFretList[i];
-              if (fret === "x") continue;
-              const string = instrument.tuning[i];
-              const note = (string.note + (fret as number)) % 12;
-              return note === bassNote;
-            }
-            return false;
-          })())
-      ) {
+      const allNotesCovered = requiredNotes.every((note) =>
+        currentNotesCovered.has(note)
+      );
+
+      // Check bass note condition
+      let bassCondition = true;
+      if (bassNote !== undefined) {
+        // Find the lowest played string (lowest index)
+        for (let i = 0; i < currentFretList.length; i++) {
+          const fret = currentFretList[i];
+          if (fret === "x") continue;
+          const string = instrument.tuning[i];
+          const note = (string.note + (fret as number)) % 12;
+          if (note === bassNote) {
+            break;
+          } else {
+            bassCondition = false;
+            break;
+          }
+        }
+      }
+
+      if (allNotesCovered && bassCondition) {
         results.push({
           frets: [...currentFretList],
           name: chordName,
@@ -510,6 +521,27 @@ export function findChordShapes(
     for (const option of options) {
       // Prune if already exceeded the fret limit
       if (typeof option === "number" && option > 12) continue;
+
+      // Calculate new min and max frets
+      let newMinFret = minFret;
+      let newMaxFret = maxFret;
+
+      if (typeof option === "number" && option !== 0) {
+        if (newMinFret === null || option < newMinFret) {
+          newMinFret = option;
+        }
+        if (newMaxFret === null || option > newMaxFret) {
+          newMaxFret = option;
+        }
+
+        // Calculate fret span
+        if (newMinFret !== null && newMaxFret !== null) {
+          const fretSpan = newMaxFret - newMinFret;
+          if (fretSpan > 4) {
+            continue; // Exceeds maximum fret span
+          }
+        }
+      }
 
       const newFretList = [...currentFretList, option];
       const newNotesCovered = new Set(currentNotesCovered);
@@ -531,7 +563,13 @@ export function findChordShapes(
         continue;
       }
 
-      backtrack(newFretList, newNotesCovered, stringIndex + 1);
+      backtrack(
+        newFretList,
+        newNotesCovered,
+        stringIndex + 1,
+        newMinFret,
+        newMaxFret
+      );
 
       if (results.length >= limit) {
         return;
@@ -539,8 +577,8 @@ export function findChordShapes(
     }
   }
 
-  // Start backtracking
-  backtrack([], new Set<number>(), 0);
+  // Start backtracking with initial minFret and maxFret as null
+  backtrack([], new Set<number>(), 0, null, null);
 
   return results;
 }
