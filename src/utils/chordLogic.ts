@@ -1,5 +1,5 @@
-import G_CHORDS from "./data/chords";
-import ChordShape, { ChordShapeRefined } from "./types/chord-shape";
+import G_CHORDS from "../data/chords";
+import ChordShape, { ChordShapeRefined } from "../types/chord-shape";
 
 export const NOTE_MAP: Record<string, number> = {
   C: 0,
