@@ -26,6 +26,7 @@ type Chord = {
    * Mapping from note names to their chromatic numbers.
    */
   const NOTE_TO_NUMBER: { [key: string]: number } = {
+    'B#': 0,
     C: 0,
     'C#': 1,
     Db: 1,
