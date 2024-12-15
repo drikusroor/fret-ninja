@@ -470,13 +470,15 @@ export function findChordShapes(
    * @param stringIndex The current string being processed.
    * @param minFret The lowest fret assigned so far (excluding 0).
    * @param maxFret The highest fret assigned so far.
+   * @param bassAssigned Whether the bass note has been assigned.
    */
   function backtrack(
     currentFretList: (number | "x")[],
     currentNotesCovered: Set<number>,
     stringIndex: number,
     minFret: number | null,
-    maxFret: number | null
+    maxFret: number | null,
+    bassAssigned: boolean
   ) {
     if (results.length >= limit) {
       return;
@@ -522,23 +524,57 @@ export function findChordShapes(
       // Prune if already exceeded the fret limit
       if (typeof option === "number" && option > 12) continue;
 
-      // Calculate new min and max frets
+      // Initialize new min and max frets
       let newMinFret = minFret;
       let newMaxFret = maxFret;
 
-      if (typeof option === "number" && option !== 0) {
-        if (newMinFret === null || option < newMinFret) {
-          newMinFret = option;
+      let isBassAssignment = false;
+
+      // Check if this option assigns the bass note
+      if (
+        bassNote !== undefined &&
+        !bassAssigned &&
+        typeof option === "number"
+      ) {
+        const string = instrument.tuning[stringIndex];
+        const note = (string.note + option) % 12;
+        if (note === bassNote) {
+          isBassAssignment = true;
         }
-        if (newMaxFret === null || option > newMaxFret) {
-          newMaxFret = option;
+      }
+
+      if (isBassAssignment) {
+        // Assign the bass note to this string
+        // Update min and max frets
+        if (option !== 0) {
+          newMinFret =
+            newMinFret === null ? option : Math.min(newMinFret, option);
+          newMaxFret =
+            newMaxFret === null ? option : Math.max(newMaxFret, option);
         }
 
-        // Calculate fret span
+        // Check fret span
         if (newMinFret !== null && newMaxFret !== null) {
           const fretSpan = newMaxFret - newMinFret;
           if (fretSpan > 4) {
             continue; // Exceeds maximum fret span
+          }
+        }
+      } else {
+        // Not assigning the bass note here
+        // Update min and max frets
+        if (typeof option === "number" && option !== 0) {
+          newMinFret =
+            newMinFret === null ? option : Math.min(newMinFret, option);
+          newMaxFret =
+            newMaxFret === null ? option : Math.max(newMaxFret, option);
+
+          // Check fret span
+          if (newMinFret !== null && newMaxFret !== null) {
+            const fretSpan = newMaxFret - newMinFret;
+            if (fretSpan > 4) {
+              continue; // Exceeds maximum fret span
+            }
           }
         }
       }
@@ -558,17 +594,19 @@ export function findChordShapes(
         (note) => !newNotesCovered.has(note)
       );
 
+      // Each remaining string can cover at most 2 notes (assumption)
       if (remainingNotes.length > remainingStrings * 2) {
-        // Assuming each string can cover up to 2 notes (arbitrary choice)
         continue;
       }
 
+      // Recursively backtrack
       backtrack(
         newFretList,
         newNotesCovered,
         stringIndex + 1,
         newMinFret,
-        newMaxFret
+        newMaxFret,
+        bassAssigned || isBassAssignment
       );
 
       if (results.length >= limit) {
@@ -577,8 +615,8 @@ export function findChordShapes(
     }
   }
 
-  // Start backtracking with initial minFret and maxFret as null
-  backtrack([], new Set<number>(), 0, null, null);
+  // Start backtracking with initial minFret and maxFret as null, and bassAssigned as false
+  backtrack([], new Set<number>(), 0, null, null, false);
 
   return results;
 }
