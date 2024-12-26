@@ -97,6 +97,8 @@ const INTERVALS: { [key: string]: number[] } = {
   mMaj7: [0, 3, 7, 11], // Minor Major 7
   dim7: [0, 3, 6, 9], // Diminished 7
   halfDim7: [0, 3, 6, 10], // Half-Diminished 7
+  m7b5: [0, 3, 6, 10], // Minor 7 flat 5 (same as half-diminished)
+  maj7b5: [0, 4, 6, 11], // Major 7 flat 5
 
   // Extended chords
   "9": [0, 4, 7, 10, 14], // Dominant 9
