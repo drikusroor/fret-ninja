@@ -557,7 +557,7 @@ export function findChordShapes(
       if (isBassAssignment) {
         // Assign the bass note to this string
         // Update min and max frets
-        if (option !== 0) {
+        if (option !== 0 && option !== "x") {
           newMinFret =
             newMinFret === null ? option : Math.min(newMinFret, option);
           newMaxFret =
@@ -640,7 +640,7 @@ export function getChordFingers(frets: (number | "x")[]): (number)[] {
   // ----- 1) Assign Index for the lowest fret (barre logic) -----
   const minFret = frets.reduce((acc, fret) => {
     if (fret === "x" || fret === 0) return acc;
-    return Math.min(acc, fret as number);
+    return Math.min(acc as number, fret as number);
   }, Infinity);
 
   const minFretCount = frets.filter((fret) => fret === minFret).length;
