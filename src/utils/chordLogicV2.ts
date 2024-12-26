@@ -680,7 +680,7 @@ export function getChordFingers(frets: (number | "x")[]): (number)[] {
     if (finger === "x" && frets[i] === 0) return 0;
 
     // Otherwise, if still "x", treat as "x" (muted / not played)
-    if (finger === "x") return "x";
+    if (finger === "x") return 0;
 
     // Otherwise cast to number
     return finger as number;
