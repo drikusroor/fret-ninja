@@ -1,20 +1,27 @@
-import React from 'react';
-import { ChordShapeRefined } from './types/chord-shape';
-import { audioService } from './utils/audioService';
+import React from "react";
+import { ChordShapeRefined } from "./types/chord-shape";
+import { audioService } from "./utils/audioService";
 
 const STRING_NAMES = ["e", "b", "g", "d", "a", "e"];
 
 interface ChordDiagramProps {
-  frets: ChordShapeRefined['frets'];
-  fingers: ChordShapeRefined['fingers'];
-  onAdd?: () => void;  // Make onAdd optional
+  frets: ChordShapeRefined["frets"];
+  fingers: ChordShapeRefined["fingers"];
+  onAdd?: () => void; // Make onAdd optional
 }
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers = [], onAdd }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = ({
+  frets,
+  fingers = [],
+  onAdd,
+}) => {
   const invertedFrets = [...frets].reverse();
   const invertedFingers = [...fingers].reverse();
 
-  const hardToPlay = fingers.reduce((acc, f) => acc + f, 0) <= 0;
+  const hardToPlay =
+    fingers
+      .filter((f) => typeof f === "number")
+      .reduce((acc, f) => acc + f, 0) <= 0;
 
   const handlePlay = () => {
     audioService.playChord(frets);
@@ -37,8 +44,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers = [],
           className="hidden group-hover:inline-block p-1 rounded-full w-8 h-8 bg-green-500 hover:bg-green-600 text-white transition-colors"
           title="Play chord (arpeggiated)"
         >
-          {/* utf play icon */}
-          ▶
+          {/* utf play icon */}▶
         </button>
       </div>
 
@@ -46,18 +52,28 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers = [],
         {STRING_NAMES.map((stringName, i) => {
           const f = invertedFrets[i];
           const fi = invertedFingers[i];
-          let fingerName = '';
+          let fingerName = "";
           switch (fi) {
-            case 1: fingerName = '(Index)'; break;
-          case 2: fingerName = '(Middle)'; break;
-          case 3: fingerName = '(Ring)'; break;
-          case 4: fingerName = '(Pinky)'; break;
+            case 1:
+              fingerName = "(Index)";
+              break;
+            case 2:
+              fingerName = "(Middle)";
+              break;
+            case 3:
+              fingerName = "(Ring)";
+              break;
+            case 4:
+              fingerName = "(Pinky)";
+              break;
           }
 
           return (
             <div key={i} className="flex items-center text-gray-700">
-              <span className="w-6 font-bold text-indigo-600">{stringName}</span>
-              <span className="mx-2 bg-gray-400 w-4 h-0.5"/>
+              <span className="w-6 font-bold text-indigo-600">
+                {stringName}
+              </span>
+              <span className="mx-2 bg-gray-400 w-4 h-0.5" />
               <span className="w-4 text-center tabular-nums">{f}</span>
               {fingerName && (
                 <span className="ml-2" title={`Finger ${fi}`}>

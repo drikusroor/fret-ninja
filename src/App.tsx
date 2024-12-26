@@ -3,9 +3,7 @@ import { getChordShapes, chordDistance } from "./utils/chordLogic";
 import { ChordShapeRefined } from "./types/chord-shape";
 import { ChordDiagram } from "./ChordDiagram";
 import {
-  chordToNotes,
   findChordShapes,
-  findInterchangeableChords,
   standardGuitar,
 } from "./utils/chordLogicV2";
 

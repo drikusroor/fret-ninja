@@ -1,3 +1,5 @@
+import { Fret } from "../types/chord-shape";
+
 // audioService.ts
 const NOTE_FREQUENCIES: Record<string, number> = {
     'E2': 82.41,
@@ -75,7 +77,7 @@ const NOTE_FREQUENCIES: Record<string, number> = {
       return baseFreq * Math.pow(2, fret / 12);
     }
   
-    playChord(frets: (string | number)[]) {
+    playChord(frets: Fret[]) {
       if (this.isPlaying) {
         // stop previous chord with short fade out
         this.isPlaying = false;

@@ -1,5 +1,7 @@
 // chordLogicV2.ts
 
+import { ChordShapeRefined, Finger, Fret } from "../types/chord-shape";
+
 export type Chord = {
   root: string;
   chordType: string;
@@ -49,7 +51,7 @@ export const standardGuitar: Instrument = {
 };
 
 export type ChordShape = {
-  frets: (number | "x")[]; // 'x' represents a muted string
+  frets: Fret[]; // 'x' represents a muted string
   fingers?: (number | 0)[]; // Optional finger positions (not implemented)
   fingersOpen?: (number | 0)[]; // Optional open string indicators (not implemented)
 };
@@ -437,7 +439,7 @@ export function findChordShapes(
   chordName: string,
   instrument: Instrument,
   limit: number = 5
-): ChordShape[] {
+): ChordShapeRefined[] {
   const chordNotesObj = chordToNotes(chordName, true); // Normalize notes for comparison
   if (!chordNotesObj) {
     console.warn(`Cannot find notes for chord: ${chordName}`);
@@ -448,10 +450,10 @@ export function findChordShapes(
   const bassNote = chordNotesObj.bass; // Number (0-11) or undefined
 
   // For each string, list possible frets that can produce required notes or 'x' to mute
-  const stringFretOptions: (number | "x")[][] = instrument.tuning.map(
+  const stringFretOptions: Fret[][] = instrument.tuning.map(
     (string) => {
       const openNote = string.note % 12;
-      const options: (number | "x")[] = [];
+      const options: Fret[] = [];
 
       // List frets 0-12 that produce required notes
       for (let fret = 0; fret <= 12; fret++) {
@@ -468,7 +470,7 @@ export function findChordShapes(
     }
   );
 
-  const results: ChordShape[] = [];
+  const results: ChordShapeRefined[] = [];
 
   /**
    * Recursive backtracking function to find chord shapes.
@@ -480,7 +482,7 @@ export function findChordShapes(
    * @param bassAssigned Whether the bass note has been assigned.
    */
   function backtrack(
-    currentFretList: (number | "x")[],
+    currentFretList: Fret[],
     currentNotesCovered: Set<number>,
     stringIndex: number,
     minFret: number | null,
@@ -523,7 +525,6 @@ export function findChordShapes(
         results.push({
           frets: [...currentFretList],
           fingers,
-          name: chordName,
         });
       }
       return;
@@ -559,9 +560,9 @@ export function findChordShapes(
         // Update min and max frets
         if (option !== 0 && option !== "x") {
           newMinFret =
-            newMinFret === null ? option : Math.min(newMinFret, option);
+            newMinFret === null ? option as number : Math.min(newMinFret, option as number);
           newMaxFret =
-            newMaxFret === null ? option : Math.max(newMaxFret, option);
+            newMaxFret === null ? option as number : Math.max(newMaxFret, option as number);
         }
 
         // Check fret span
@@ -632,7 +633,7 @@ export function findChordShapes(
   return results;
 }
 
-export function getChordFingers(frets: (number | "x")[]): (number)[] {
+export function getChordFingers(frets: Fret[]): (number)[] {
   // 1 = Index, 2 = Middle, 3 = Ring, 4 = Pinky
 
   const fingers = new Array(frets.length).fill("x");
@@ -693,7 +694,7 @@ export function getChordFingers(frets: (number | "x")[]): (number)[] {
  */
 function assignFinger(
   fingerValue: number,
-  frets: (number | "x")[],
+  frets: Fret[],
   fingers: (number | string)[]
 ) {
   // Gather unassigned notes (ignore "x", 0, or already assigned)
@@ -726,8 +727,8 @@ function assignFinger(
  * to pass chords like 133111 (Fm) => 134111 or 133211 (F) => 134211, etc.
  */
 function postProcessBarreOneThree(
-  frets: (number | "x")[],
-  fingers: (number | string)[]
+  frets: Fret[],
+  fingers: Finger[]
 ) {
   // 1) Check if we have a "barre at 1"
   const minFret = Math.min(...frets.filter((f) => typeof f === "number" && f > 0) as number[]);

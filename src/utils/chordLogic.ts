@@ -1,5 +1,5 @@
 import G_CHORDS from "../data/chords";
-import ChordShape, { ChordShapeRefined } from "../types/chord-shape";
+import ChordShape, { ChordShapeRefined, Fret } from "../types/chord-shape";
 
 export const NOTE_MAP: Record<string, number> = {
   C: 0,
@@ -107,7 +107,7 @@ function transposeChordShape(gShape: ChordShape, fromRoot: string, toRoot: strin
   const fromSemitone = NOTE_MAP[fromRoot];
   const toSemitone = NOTE_MAP[toRoot];
   const interval = (toSemitone - fromSemitone + 12) % 12;
-  let newFrets: (string | number)[] = [];
+  let newFrets: Fret[] = [];
 
   for (let i = 0; i < gShape.frets.length; i++) {
     const f = gShape.frets[i];

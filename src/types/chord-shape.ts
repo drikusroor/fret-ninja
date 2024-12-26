@@ -1,12 +1,15 @@
+export type Fret = number | string;
+export type Finger = number | string;
+
 type ChordShape = {
-    frets: (string | number)[];
-    fingers?: (number | 0)[];
-    fingersOpen?: (number | 0)[];
+    frets: Fret[];
+    fingers?: Finger[];
+    fingersOpen?: Finger[];
 };
 
 export type ChordShapeRefined = {
-    frets: (string | number)[];
-    fingers: (number | 0)[];
+    frets: Fret[];
+    fingers: Finger[];
 }
 
 export default ChordShape;
