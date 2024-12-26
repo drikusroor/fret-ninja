@@ -95,8 +95,6 @@ const App: React.FC = () => {
       // Version 2
       console.log('Version 2')
       const trimmed = chordName.trim();
-      const notes = chordToNotes(trimmed);
-      const equivalentChords = findInterchangeableChords(trimmed);
       const instrument = standardGuitar;
       const chordShapes = findChordShapes(chordName, instrument);
       chords = [{
