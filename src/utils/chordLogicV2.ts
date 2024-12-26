@@ -625,7 +625,7 @@ export function findChordShapes(
   return results;
 }
 
-export function getChordFingers(frets: (number | "x")[]): (number | 0)[] {
+export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
   console.log("Frets:", frets);
 
   // 1 = Index, 2 = Middle, 3 = Ring, 4 = Pinky
@@ -673,11 +673,21 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0)[] {
 
   console.log("Assigned Fingers:", fingers);
 
-  // Convert leftover "x" to 0 if the fret is actually open, else 0 (or keep 'x' if desired)
-  return fingers.map((f, i) => {
-    if (f === "x" && frets[i] === 0) return 0;
-    if (f === "x") return 0; 
-    return f as number;
+  // *** Fix is here: preserve "x" if the fret is "x" ***
+  return fingers.map((finger, i) => {
+    if (frets[i] === "x") {
+      // Original chord says "mute"
+      return "x"
+    }
+    if (finger === "x" && frets[i] === 0) {
+      // It's open
+      return 0
+    }
+    if (finger === "x") {
+      // Unassigned to a non-open fret => also treat it as muted
+      return "x"
+    }
+    return finger as number
   });
 }
 
@@ -706,7 +716,7 @@ function assignFingersRecursive(
     return;
   }
 
-  // Identify all positions where the index finger is placed (could be multiple if barre chord)
+  // Identify positions where the index finger is placed (could be multiple if barre)
   const indexPositions = frets
     .map((f, i) => ({ fret: f, idx: i }))
     .filter((obj) => fingers[obj.idx] === 1 && typeof obj.fret === "number");
@@ -755,12 +765,10 @@ function assignFingersRecursive(
       // Else => middle finger
       if (chosenDist.fretDiff > 2) {
         fingers[chosenIdx] = 4; // pinky
-        // We used the pinky here, so skip ring assignment, go to next pass => fingerIndex=5
         assignFingersRecursive(5, frets, fingers);
         return;
       } else if (chosenDist.fretDiff > 1) {
         fingers[chosenIdx] = 3; // ring
-        // We used ring, skip the normal ring pass => go directly to pinky pass
         assignFingersRecursive(4, frets, fingers);
         return;
       } else {
@@ -768,14 +776,10 @@ function assignFingersRecursive(
       }
       break;
     }
-
     case 3:
-      // Normal ring assignment to the chosen note (unless you want similar skipping logic from ring -> pinky)
       fingers[chosenIdx] = 3;
       break;
-
     case 4:
-      // Pinky gets assigned to the chosen note
       fingers[chosenIdx] = 4;
       break;
   }

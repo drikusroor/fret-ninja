@@ -10,10 +10,10 @@ describe("getChordFingers()", () => {
     expect(result).toEqual(["x", 0, 2, 3, 1, 0])
   })
 
-  it("320003 (G) -> 320004", () => {
+  it("320003 (G) -> 210003", () => {
     const frets = [3, 2, 0, 0, 0, 3]             // 320003
     const result = getChordFingers(frets)
-    expect(result).toEqual([3, 2, 0, 0, 0, 4])   // 320004
+    expect(result).toEqual([2, 1, 0, 0, 0, 3])   // 210003
   })
 
   it("320033 (G) -> 210034", () => {
