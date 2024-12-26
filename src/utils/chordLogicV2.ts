@@ -145,7 +145,12 @@ function parseChordName(chordName: string): Chord | null {
 
   const root = match[1];
   let chordDescriptor = match[2];
-  const bass = match[3];
+  let bass = match[3];
+
+  if (bass === undefined) {
+    console.log("No bass note found");
+    bass = root;
+  }
 
   // Extract alterations within parentheses, e.g., Fmaj7(b5)
   const alterationRegex = /\(([^)]+)\)/;
