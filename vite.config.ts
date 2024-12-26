@@ -10,5 +10,9 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  
+  test: {
+    globals: true,
+    environment: 'jsdom',    // so we can test React components, DOM APIs, etc.
+    // coverage, mocks, etc. can go here if desired
+  },
 })
