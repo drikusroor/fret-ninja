@@ -10,25 +10,26 @@ interface ChordDiagramProps {
   onAdd?: () => void;  // Make onAdd optional
 }
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers, onAdd }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers = [], onAdd }) => {
   const invertedFrets = [...frets].reverse();
   const invertedFingers = [...fingers].reverse();
+
+  const hardToPlay = fingers.reduce((acc, f) => acc + f, 0) <= 0;
 
   const handlePlay = () => {
     audioService.playChord(frets);
   };
 
   return (
-    <div className="font-mono border rounded p-2 text-sm bg-white shadow hover:shadow-md transition-shadow inline-block relative group">
-      <div className="absolute top-2 right-2 flex gap-2">
+    <div className="font-mono bg-white rounded-lg shadow-lg p-4 relative group border border-gray-300">
+      <div className="absolute -top-2 right-0 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         {onAdd && (
           <button
             onClick={onAdd}
             title="Add to sequence"
-            className="hidden group-hover:inline-block px-2 py-1 text-xs rounded-full w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+            className="w-8 h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors"
           >
-            {/* utf plus icon */}
-            &#x2b;
+            +
           </button>
         )}
         <button
@@ -41,26 +42,40 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers, onAd
         </button>
       </div>
 
-      {STRING_NAMES.map((stringName, i) => {
-        const f = invertedFrets[i];
-        const fi = invertedFingers[i];
-        let fingerName = '';
-        switch (fi) {
-          case 1: fingerName = '(Index)'; break;
+      <div className="space-y-2">
+        {STRING_NAMES.map((stringName, i) => {
+          const f = invertedFrets[i];
+          const fi = invertedFingers[i];
+          let fingerName = '';
+          switch (fi) {
+            case 1: fingerName = '(Index)'; break;
           case 2: fingerName = '(Middle)'; break;
           case 3: fingerName = '(Ring)'; break;
           case 4: fingerName = '(Pinky)'; break;
-        }
+          }
 
-        return (
-          <div key={i} className="flex items-center">
-            <span className="w-4 font-bold">{stringName}</span>
-            <span className="mx-2">|</span>
-            <span className="tabular-nums">{f}</span>
-            {fingerName && <span className="ml-2 text-gray-600">{fingerName}</span>}
-          </div>
-        );
-      })}
+          return (
+            <div key={i} className="flex items-center text-gray-700">
+              <span className="w-6 font-bold text-indigo-600">{stringName}</span>
+              <span className="mx-2 bg-gray-400 w-4 h-0.5"/>
+              <span className="w-4 text-center tabular-nums">{f}</span>
+              {fingerName && (
+                <span className="ml-2" title={`Finger ${fi}`}>
+                  {fingerName}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {hardToPlay && (
+        <div className="mt-2 text-center bg-red-500 text-white text-sm py-1 rounded-md font-bold">
+          Difficult
+        </div>
+      )}
     </div>
   );
 };
+
+export default ChordDiagram;
