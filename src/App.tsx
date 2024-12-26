@@ -33,7 +33,7 @@ const App: React.FC = () => {
   const [sequence, setSequence] = useState<string[]>(getSequenceFromUrl());
   const [chosenShapes, setChosenShapes] = useState<ChordShapeRefined[]>([]);
   const [showAllChords, setShowAllChords] = useState(false);
-  const [version, setVersion] = useState<"v1" | "v2">("v1");
+  const [version, setVersion] = useState<"v1" | "v2">("v2");
 
   useEffect(() => {
     (async function rebuildChosenShapes() {
