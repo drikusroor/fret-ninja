@@ -626,35 +626,28 @@ export function findChordShapes(
 }
 
 export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
-
   // 1 = Index, 2 = Middle, 3 = Ring, 4 = Pinky
 
-  // Create a parallel array for finger assignments; use 'x' to indicate unassigned.
   const fingers = new Array(frets.length).fill("x");
 
-  // Figure out the lowest fret (ignore "x" and 0)
-  const minFret = frets.reduce((min, fret) => {
-    if (fret === "x" || fret === 0) return min;
-    return Math.min(min, fret as number);
+  // ----- 1) Assign Index for the lowest fret (barre logic) -----
+  const minFret = frets.reduce((acc, fret) => {
+    if (fret === "x" || fret === 0) return acc;
+    return Math.min(acc, fret as number);
   }, Infinity);
 
-  // Count how many times that lowest fret appears
   const minFretCount = frets.filter((fret) => fret === minFret).length;
-
-  // Check if it’s potentially a barre chord
-  const hasBarrePotential = minFretCount > 1 && minFret !== Infinity;
   const indexOfFirstMinFret = frets.indexOf(minFret);
-  const stringsAboveIndex = frets.slice(indexOfFirstMinFret + 1);
   const isBarreChord =
-    hasBarrePotential && stringsAboveIndex.every((fret) => fret !== 0);
+    minFretCount > 1 && minFret !== Infinity &&
+    frets.slice(indexOfFirstMinFret + 1).every((f) => f !== 0);
 
-  // 1) Assign Index finger (1)
+  // If it’s a valid fret (> 0) for index
   if (minFret !== Infinity && minFret !== 0 && minFret !== "x") {
     if (isBarreChord) {
-      // Barre chord: index finger on all strings that have this min fret
-      frets.forEach((fret, i) => {
-        if (fret === minFret) {
-          fingers[i] = 1;
+      frets.forEach((f, i) => {
+        if (f === minFret) {
+          fingers[i] = 1; // Index
         }
       });
     } else {
@@ -662,38 +655,41 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
     }
   }
 
-  // 2) Assign Middle (2), Ring (3), Pinky (4), in that order
-  //    We'll just do a simple approach: pick unassigned notes in ascending fret order.
+  // ----- 2) Assign Middle (2), Ring (3), Pinky (4), in fret ascending order -----
   for (const finger of [2, 3, 4]) {
     assignFinger(finger, frets, fingers);
   }
 
-  // Finally, preserve "x" if the original fret was "x"; convert unassigned to "x" or 0 for open strings
+  // ----- 3) Post-Process “Barre at 1 + notes at fret=3” -----
+  //  If we have multiple strings at fret=3, reassign them to ring + pinky in ascending string order.
+  postProcessBarreOneThree(frets, fingers);
+
+  // ----- 4) Convert leftover "x" or open chords properly -----
   return fingers.map((finger, i) => {
-    // If the original chord has "x", keep it muted in the output
+    // If original chord has "x", keep "x"
     if (frets[i] === "x") return "x";
 
-    // If the fret is open (0) but never assigned a finger, use 0
+    // If open string 0 and still unassigned, return 0
     if (finger === "x" && frets[i] === 0) return 0;
 
-    // Unassigned but not open => treat as "x" (i.e. not played)
+    // Otherwise, if still "x", treat as "x" (muted / not played)
     if (finger === "x") return "x";
 
-    // Otherwise, cast finger to number
+    // Otherwise cast to number
     return finger as number;
   });
 }
 
 /**
- * Assign a single finger (2=middle,3=ring,4=pinky) to the *left-most, lowest fret*
- * among the remaining unassigned notes. Then stop (only assign one note).
+ * Assign the given finger (2=middle, 3=ring, 4=pinky) to the next *lowest fret*
+ * that is currently unassigned. (One note at a time.)
  */
 function assignFinger(
   fingerValue: number,
   frets: (number | "x")[],
   fingers: (number | string)[]
 ) {
-  // Gather indices of unassigned notes (non-"x"/0 in frets, but still "x" in fingers)
+  // Gather unassigned notes (ignore "x", 0, or already assigned)
   const unassignedIndices: number[] = [];
   for (let i = 0; i < frets.length; i++) {
     if (frets[i] !== "x" && frets[i] !== 0 && fingers[i] === "x") {
@@ -702,17 +698,64 @@ function assignFinger(
   }
   if (unassignedIndices.length === 0) return;
 
-  // Sort them by ascending fret, then by ascending string index
+  // Sort by ascending fret, tie-break by ascending string index
   unassignedIndices.sort((a, b) => {
     const fretA = frets[a] as number;
     const fretB = frets[b] as number;
     if (fretA === fretB) {
-      return a - b; // tie-break by the lower string index
+      return a - b;
     }
     return fretA - fretB;
   });
 
-  // Assign this finger to the first (lowest fret, left-most) unassigned note
+  // Assign fingerValue to the first (lowest fret) unassigned
   const chosenIdx = unassignedIndices[0];
   fingers[chosenIdx] = fingerValue;
 }
+
+/**
+ * If there's a chord shape with a barre at fret=1 AND 2+ notes at fret=3,
+ * we want to prefer ring + pinky (3,4) for those. This is specifically
+ * to pass chords like 133111 (Fm) => 134111 or 133211 (F) => 134211, etc.
+ */
+function postProcessBarreOneThree(
+  frets: (number | "x")[],
+  fingers: (number | string)[]
+) {
+  // 1) Check if we have a "barre at 1"
+  const minFret = Math.min(...frets.filter((f) => typeof f === "number" && f > 0) as number[]);
+  if (minFret !== 1) return; // Not a 1st-fret barre chord
+
+  // Ensure index is assigned on all fret=1 occurrences
+  const fret1Count = frets.filter((f) => f === 1).length;
+  const finger1Count = fingers.filter((f) => f === 1).length;
+  if (fret1Count <= 1 || fret1Count !== finger1Count) {
+    return; // Not a multi-string barre at fret=1
+  }
+
+  // 2) Gather indices where fret=3
+  const indicesFret3 = frets
+    .map((f, i) => ({ fret: f, idx: i }))
+    .filter((obj) => obj.fret === 3);
+
+  if (indicesFret3.length < 2) {
+    // Only 0 or 1 note at fret=3 => do nothing special
+    return;
+  }
+
+  // 3) In ascending string order, reassign ring + pinky
+  //    (If there's more than 2, we'll cycle ring/pinky or do something custom)
+  indicesFret3.sort((a, b) => a.idx - b.idx);
+
+  // We'll just keep toggling ring/pinky for each fret=3
+  let useRing = true;
+  for (const { idx } of indicesFret3) {
+    // Only reassign if it's currently assigned to 2=middle or 3=ring
+    // or 'x' => then we forcibly set ring/pinky. If you want, you can skip if it's already 3 or 4.
+    if (fingers[idx] === "x" || fingers[idx] === 2 || fingers[idx] === 3 || fingers[idx] === 4) {
+      fingers[idx] = useRing ? 3 : 4;
+      useRing = !useRing;
+    }
+  }
+}
+
