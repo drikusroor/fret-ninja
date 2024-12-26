@@ -633,20 +633,14 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
   // Create a parallel array for finger assignments; use 'x' to indicate unassigned.
   const fingers = new Array(frets.length).fill("x");
 
-  // Figure out the lowest fret (ignore "x" and open "0")
+  // Figure out the lowest fret (ignore "x" and 0)
   const minFret = frets.reduce((min, fret) => {
     if (fret === "x" || fret === 0) return min;
     return Math.min(min, fret as number);
   }, Infinity);
 
-  // Count how many times the lowest fret appears
+  // Count how many times that lowest fret appears
   const minFretCount = frets.filter((fret) => fret === minFret).length;
-
-  // Figure out the highest fret (ignore "x" and open "0")
-  const maxFret = frets.reduce((max, fret) => {
-    if (fret === "x" || fret === 0) return max;
-    return Math.max(max, fret as number);
-  }, -Infinity);
 
   // Check if it’s potentially a barre chord
   const hasBarrePotential = minFretCount > 1 && minFret !== Infinity;
@@ -655,9 +649,10 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
   const isBarreChord =
     hasBarrePotential && stringsAboveIndex.every((fret) => fret !== 0);
 
-  // 1) Assign Index finger
+  // 1) Assign Index finger (1)
   if (minFret !== Infinity && minFret !== 0 && minFret !== "x") {
     if (isBarreChord) {
+      // Barre chord: index finger on all strings that have this min fret
       frets.forEach((fret, i) => {
         if (fret === minFret) {
           fingers[i] = 1;
@@ -668,122 +663,59 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
     }
   }
 
-  // 2) Recursively assign Middle (2), Ring (3), Pinky (4)
-  assignFingersRecursive(2, frets, fingers);
+  // 2) Assign Middle (2), Ring (3), Pinky (4), in that order
+  //    We'll just do a simple approach: pick unassigned notes in ascending fret order.
+  for (const finger of [2, 3, 4]) {
+    assignFinger(finger, frets, fingers);
+  }
 
   console.log("Assigned Fingers:", fingers);
 
-  // *** Fix is here: preserve "x" if the fret is "x" ***
+  // Finally, preserve "x" if the original fret was "x"; convert unassigned to "x" or 0 for open strings
   return fingers.map((finger, i) => {
-    if (frets[i] === "x") {
-      // Original chord says "mute"
-      return "x"
-    }
-    if (finger === "x" && frets[i] === 0) {
-      // It's open
-      return 0
-    }
-    if (finger === "x") {
-      // Unassigned to a non-open fret => also treat it as muted
-      return "x"
-    }
-    return finger as number
+    // If the original chord has "x", keep it muted in the output
+    if (frets[i] === "x") return "x";
+
+    // If the fret is open (0) but never assigned a finger, use 0
+    if (finger === "x" && frets[i] === 0) return 0;
+
+    // Unassigned but not open => treat as "x" (i.e. not played)
+    if (finger === "x") return "x";
+
+    // Otherwise, cast finger to number
+    return finger as number;
   });
 }
 
-function assignFingersRecursive(
-  fingerIndex: number,
+/**
+ * Assign a single finger (2=middle,3=ring,4=pinky) to the *left-most, lowest fret*
+ * among the remaining unassigned notes. Then stop (only assign one note).
+ */
+function assignFinger(
+  fingerValue: number,
   frets: (number | "x")[],
   fingers: (number | string)[]
-): void {
-  // Base case: done if we’ve assigned past the pinky
-  if (fingerIndex > 4) return;
-
-  // Collect indices of unassigned notes (non-"x"/0 in frets, but still "x" in fingers)
+) {
+  // Gather indices of unassigned notes (non-"x"/0 in frets, but still "x" in fingers)
   const unassignedIndices: number[] = [];
   for (let i = 0; i < frets.length; i++) {
-    if (
-      frets[i] !== "x" &&
-      frets[i] !== 0 &&
-      fingers[i] === "x" // not yet assigned
-    ) {
+    if (frets[i] !== "x" && frets[i] !== 0 && fingers[i] === "x") {
       unassignedIndices.push(i);
     }
   }
+  if (unassignedIndices.length === 0) return;
 
-  // If none left to assign, we’re done
-  if (unassignedIndices.length === 0) {
-    return;
-  }
-
-  // Identify positions where the index finger is placed (could be multiple if barre)
-  const indexPositions = frets
-    .map((f, i) => ({ fret: f, idx: i }))
-    .filter((obj) => fingers[obj.idx] === 1 && typeof obj.fret === "number");
-
-  // A helper function to get "distance" from any index-finger fret
-  function getDistance(i: number) {
-    const fret = frets[i] as number;
-    let best = {
-      fretDiff: Infinity,
-      stringDiff: Infinity,
-    };
-    for (const ip of indexPositions) {
-      const indexFret = ip.fret as number;
-      const dFret = Math.abs(fret - indexFret);
-      const dString = Math.abs(i - ip.idx);
-      if (
-        dFret < best.fretDiff ||
-        (dFret === best.fretDiff && dString < best.stringDiff)
-      ) {
-        best = { fretDiff: dFret, stringDiff: dString };
-      }
+  // Sort them by ascending fret, then by ascending string index
+  unassignedIndices.sort((a, b) => {
+    const fretA = frets[a] as number;
+    const fretB = frets[b] as number;
+    if (fretA === fretB) {
+      return a - b; // tie-break by the lower string index
     }
-    return best;
-  }
+    return fretA - fretB;
+  });
 
-  // Pick whichever unassigned fret is "closest" to an index finger
-  let chosenIdx = unassignedIndices[0];
-  let chosenDist = getDistance(chosenIdx);
-  for (const i of unassignedIndices) {
-    const dist = getDistance(i);
-    if (
-      dist.fretDiff < chosenDist.fretDiff ||
-      (dist.fretDiff === chosenDist.fretDiff &&
-        dist.stringDiff < chosenDist.stringDiff)
-    ) {
-      chosenIdx = i;
-      chosenDist = dist;
-    }
-  }
-
-  // Decide assignment based on fingerIndex + distance rules
-  switch (fingerIndex) {
-    case 2: {
-      // If the fret distance from the index finger is more than 2 => pinky
-      // Else if distance > 1 => ring finger
-      // Else => middle finger
-      if (chosenDist.fretDiff > 2) {
-        fingers[chosenIdx] = 4; // pinky
-        assignFingersRecursive(5, frets, fingers);
-        return;
-      } else if (chosenDist.fretDiff > 1) {
-        fingers[chosenIdx] = 3; // ring
-        assignFingersRecursive(4, frets, fingers);
-        return;
-      } else {
-        fingers[chosenIdx] = 2; // middle
-      }
-      break;
-    }
-    case 3:
-      fingers[chosenIdx] = 3;
-      break;
-    case 4:
-      fingers[chosenIdx] = 4;
-      break;
-  }
-
-  // Move on to next finger
-  assignFingersRecursive(fingerIndex + 1, frets, fingers);
+  // Assign this finger to the first (lowest fret, left-most) unassigned note
+  const chosenIdx = unassignedIndices[0];
+  fingers[chosenIdx] = fingerValue;
 }
