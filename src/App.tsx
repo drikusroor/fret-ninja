@@ -107,7 +107,6 @@ const App: React.FC = () => {
       }]
     }
     
-    console.log({chords})
     setFoundChords(chords);
   };
 
