@@ -632,7 +632,7 @@ export function findChordShapes(
   return results;
 }
 
-export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
+export function getChordFingers(frets: (number | "x")[]): (number)[] {
   // 1 = Index, 2 = Middle, 3 = Ring, 4 = Pinky
 
   const fingers = new Array(frets.length).fill("x");
@@ -674,7 +674,7 @@ export function getChordFingers(frets: (number | "x")[]): (number | 0 | "x")[] {
   // ----- 4) Convert leftover "x" or open chords properly -----
   return fingers.map((finger, i) => {
     // If original chord has "x", keep "x"
-    if (frets[i] === "x") return "x";
+    if (frets[i] === "x") return 0;
 
     // If open string 0 and still unassigned, return 0
     if (finger === "x" && frets[i] === 0) return 0;
