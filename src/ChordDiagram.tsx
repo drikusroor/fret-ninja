@@ -10,9 +10,11 @@ interface ChordDiagramProps {
   onAdd?: () => void;  // Make onAdd optional
 }
 
-export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers, onAdd }) => {
+export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers = [], onAdd }) => {
   const invertedFrets = [...frets].reverse();
   const invertedFingers = [...fingers].reverse();
+
+  const hardToPlay = fingers.reduce((acc, f) => acc + f, 0) <= 0;
 
   const handlePlay = () => {
     audioService.playChord(frets);
@@ -61,6 +63,10 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({ frets, fingers, onAd
           </div>
         );
       })}
+
+      { hardToPlay && (
+          <div className="text-center bg-red-500 text-white rounded mt-1 font-bold">!</div>
+      )}
     </div>
   );
 };

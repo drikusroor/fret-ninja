@@ -1,48 +1,55 @@
-import React, { useState, useEffect, KeyboardEvent } from 'react';
-import { getChordShapes, chordDistance } from './utils/chordLogic';
-import { ChordShapeRefined } from './types/chord-shape';
-import { ChordDiagram } from './ChordDiagram';
-import { chordToNotes, findChordShapes, findInterchangeableChords, standardGuitar } from './utils/chordLogicV2';
+import React, { useState, useEffect, KeyboardEvent } from "react";
+import { getChordShapes, chordDistance } from "./utils/chordLogic";
+import { ChordShapeRefined } from "./types/chord-shape";
+import { ChordDiagram } from "./ChordDiagram";
+import {
+  chordToNotes,
+  findChordShapes,
+  findInterchangeableChords,
+  standardGuitar,
+} from "./utils/chordLogicV2";
 
 // Utility to parse and store sequence in URL
 function getSequenceFromUrl(): string[] {
   const urlParams = new URLSearchParams(window.location.search);
-  const seq = urlParams.get('seq');
+  const seq = urlParams.get("seq");
   if (!seq) return [];
-  return seq.split(',');
+  return seq.split(",");
 }
 
 function setSequenceInUrl(sequence: string[]) {
   const url = new URL(window.location.href);
   if (sequence.length > 0) {
-    url.searchParams.set('seq', sequence.join(','));
+    url.searchParams.set("seq", sequence.join(","));
   } else {
-    url.searchParams.delete('seq');
+    url.searchParams.delete("seq");
   }
-  window.history.replaceState({}, '', url.toString());
+  window.history.replaceState({}, "", url.toString());
 }
 
 const App: React.FC = () => {
-  const [chordName, setChordName] = useState('');
-  const [foundChords, setFoundChords] = useState<{ chordName: string; shapes: ChordShapeRefined[] }[]>([]);
-
+  const [chordName, setChordName] = useState("");
+  const [foundChords, setFoundChords] = useState<
+    { chordName: string; shapes: ChordShapeRefined[] }[]
+  >([]);
   const [sequence, setSequence] = useState<string[]>(getSequenceFromUrl());
   const [chosenShapes, setChosenShapes] = useState<ChordShapeRefined[]>([]);
-
-  // For the "show more" feature
   const [showAllChords, setShowAllChords] = useState(false);
+  const [version, setVersion] = useState<"v1" | "v2">("v1");
 
   useEffect(() => {
-    // On load, rebuild chosenShapes from the sequence in URL
     (async function rebuildChosenShapes() {
       const newShapes: ChordShapeRefined[] = [];
       let prevShape: ChordShapeRefined | null = null;
 
       for (const ch of sequence) {
         const allChords = getChordShapes(ch);
-        const matched = allChords.find(c => c.chordName === ch);
+        const matched = allChords.find((c) => c.chordName === ch);
         if (!matched || matched.shapes.length === 0) {
-          newShapes.push({ frets: ['x', 'x', 'x', 'x', 'x', 'x'], fingers: [0, 0, 0, 0, 0, 0] });
+          newShapes.push({
+            frets: ["x", "x", "x", "x", "x", "x"],
+            fingers: [0, 0, 0, 0, 0, 0],
+          });
           continue;
         }
 
@@ -68,34 +75,50 @@ const App: React.FC = () => {
   useEffect(() => {
     handleSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chordName]);
+  }, [chordName, version]);
 
   useEffect(() => {
-    // Update URL params whenever sequence changes
     setSequenceInUrl(sequence);
   }, [sequence]);
 
   const handleSearch = () => {
-    if (chordName.trim() === '') {
+    if (chordName.trim() === "") {
       setFoundChords([]);
       return;
     }
-    const chords = getChordShapes(chordName.trim());
 
-    // V2 search
-    const trimmed = chordName.trim();
-    const notes = chordToNotes(trimmed);
-    const equivalentChords = findInterchangeableChords(trimmed);
-    const instrument = standardGuitar;
-    const chordShapes = findChordShapes(chordName, instrument);
-    console.log({ notes, equivalentChords, chordShapes });
+    let chords = [];
 
+    if (version === "v1") {
+      console.log('Version 1')
+      // Version 1
+      chords = getChordShapes(chordName.trim());
+    } else {
+      // Version 2
+      console.log('Version 2')
+      const trimmed = chordName.trim();
+      const notes = chordToNotes(trimmed);
+      const equivalentChords = findInterchangeableChords(trimmed);
+      const instrument = standardGuitar;
+      const chordShapes = findChordShapes(chordName, instrument);
+      chords = [{
+        chordName: trimmed,
+        shapes: chordShapes,
+      }]
+    }
+    
+    console.log({chords})
     setFoundChords(chords);
   };
 
-  const chooseShapeForChord = (allShapes: ChordShapeRefined[], referenceShape?: ChordShapeRefined): ChordShapeRefined => {
+  const chooseShapeForChord = (
+    allShapes: ChordShapeRefined[],
+    referenceShape?: ChordShapeRefined
+  ): ChordShapeRefined => {
     let chosenShape = allShapes[0];
-    const ref = referenceShape || (chosenShapes.length > 0 ? chosenShapes[chosenShapes.length - 1] : null);
+    const ref =
+      referenceShape ||
+      (chosenShapes.length > 0 ? chosenShapes[chosenShapes.length - 1] : null);
     if (ref) {
       let bestDist = Infinity;
       for (const s of allShapes) {
@@ -117,11 +140,11 @@ const App: React.FC = () => {
     const chosenShape = chooseShapeForChord(topGroup.shapes);
     setSequence([...sequence, topGroup.chordName]);
     setChosenShapes([...chosenShapes, chosenShape]);
-    setChordName(''); // Clear input after adding
+    setChordName("");
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       addTopChordToSequence();
     }
   };
@@ -130,14 +153,14 @@ const App: React.FC = () => {
     addTopChordToSequence();
   };
 
-  const handleAddSpecificChord = (chordName: string, shape: ChordShapeRefined) => {
-    // Add this exact shape to the sequence
-    // The chordName given here is the displayName from foundChords
-    // We might want to pick the best shape based on last chord
+  const handleAddSpecificChord = (
+    chordName: string,
+    shape: ChordShapeRefined
+  ) => {
     const chosenShape = chooseShapeForChord([shape]);
     setSequence([...sequence, chordName]);
     setChosenShapes([...chosenShapes, chosenShape]);
-    setChordName(''); // Clear input
+    setChordName("");
   };
 
   const handleRemoveFromSequence = (index: number) => {
@@ -152,20 +175,46 @@ const App: React.FC = () => {
   const handleReset = () => {
     setSequence([]);
     setChosenShapes([]);
-    setChordName('');
+    setChordName("");
   };
 
-  // Determine how many chord groups to show
   const maxVisibleChords = 3;
-  const visibleChords = showAllChords ? foundChords : foundChords.slice(0, maxVisibleChords);
+  const visibleChords = showAllChords
+    ? foundChords
+    : foundChords.slice(0, maxVisibleChords);
 
   return (
-    <div className='bg-indigo-100 min-h-screen'>
+    <div className="bg-indigo-100 min-h-screen">
       <div className="container mx-auto p-4 font-sans">
         <h1 className="text-3xl font-bold mb-4 text-center">
-          <img src="logo.png" alt="Fret Ninja" className="inline-block w-16 h-16 mr-2 rounded-lg" />
+          <img
+            src="logo.png"
+            alt="Fret Ninja"
+            className="inline-block w-16 h-16 mr-2 rounded-lg"
+          />
           Fret Ninja
         </h1>
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <button
+              className={`px-4 py-2 rounded ${
+                version === "v1" ? "bg-blue-500 text-white" : "bg-gray-300"
+              }`}
+              onClick={() => setVersion("v1")}
+            >
+              v1
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${
+                version === "v2" ? "bg-blue-500 text-white" : "bg-gray-300"
+              }`}
+              onClick={() => setVersion("v2")}
+            >
+              v2
+            </button>
+          </div>
+        </div>
+
         <div className="mb-4">
           <div className="flex items-center gap-2">
             <input
@@ -194,17 +243,19 @@ const App: React.FC = () => {
         {foundChords.length > 0 && (
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Found Chords</h2>
-            <div className='flex flex-col gap-5'>
+            <div className="flex flex-col gap-5">
               {visibleChords.map((group, idx) => (
-                <div key={idx} className={`${idx === 0 ? 'col-span-2' : ''}`}>
+                <div key={idx} className={`${idx === 0 ? "col-span-2" : ""}`}>
                   <h3 className="text-lg font-bold mb-2">{group.chordName}</h3>
-                  <div className='flex flex-nowrap gap-4 overflow-x-auto'>
+                  <div className="flex flex-nowrap gap-4 overflow-x-auto">
                     {group.shapes.map((shape, i) => (
                       <div key={i} className="relative">
                         <ChordDiagram
                           frets={shape.frets}
                           fingers={shape.fingers}
-                          onAdd={() => handleAddSpecificChord(group.chordName, shape)}
+                          onAdd={() =>
+                            handleAddSpecificChord(group.chordName, shape)
+                          }
                         />
                       </div>
                     ))}
@@ -218,7 +269,7 @@ const App: React.FC = () => {
                 className="text-blue-600 underline hover:text-blue-800"
                 onClick={() => setShowAllChords(!showAllChords)}
               >
-                {showAllChords ? 'Show less' : 'Show more'}
+                {showAllChords ? "Show less" : "Show more"}
               </button>
             )}
           </div>
@@ -229,14 +280,19 @@ const App: React.FC = () => {
             <h2 className="text-xl font-semibold mb-2">Chord Sequence</h2>
             <div className="flex flex-wrap gap-4">
               {sequence.map((ch, idx) => (
-                <div key={idx} className="inline-flex flex-col items-center relative border p-2 rounded bg-gray-100">
+                <div
+                  key={idx}
+                  className="inline-flex flex-col items-center relative border p-2 rounded bg-gray-100"
+                >
                   <button
                     className="absolute top-0 right-0 px-1 text-xs text-white bg-red-500 rounded-bl hover:bg-red-600"
                     onClick={() => handleRemoveFromSequence(idx)}
                   >
                     X
                   </button>
-                  <strong className="block font-semibold mb-1 text-center">{ch}</strong>
+                  <strong className="block font-semibold mb-1 text-center">
+                    {ch}
+                  </strong>
                   {chosenShapes[idx] && (
                     <ChordDiagram
                       frets={chosenShapes[idx].frets}
